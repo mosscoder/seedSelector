@@ -155,7 +155,6 @@ server <- shinyServer(function(input, output, session) {
 
     if (!is.null(infile)) {
       infile.dat <- as.data.frame(read.csv(infile$datapath, header=TRUE))
-      #colnames(infile.dat) <- c('id','x','y')
       infile.dat$id <- factor(infile.dat$id, levels = infile.dat$id)
       rasLoc <- path.expand('./climateMerc.tif')
       extract <- withProgress(message = "Extracting accession climate data",
@@ -252,7 +251,7 @@ server <- shinyServer(function(input, output, session) {
     } else if
     
     (input$boundSelect == "poly" &
-       !is.null(input$boundFile2)){
+     file.exists(paste0(temp.folder,'/userPoly.shp'))){
       
       shpLoc <- path.expand(paste0(temp.folder,'/userPoly.shp'))
       rasLoc <- path.expand('./climateMerc.tif')
@@ -272,6 +271,7 @@ server <- shinyServer(function(input, output, session) {
                  type = 'warning',
                  closeOnClickOutside = TRUE,
                  html = T)
+      NULL
     }
   })
   
@@ -319,17 +319,24 @@ server <- shinyServer(function(input, output, session) {
     colnames(rawAccession) <- colnames(unsc)
     accessionsAdded <- rbind(rawAccession, unsc)
     
-    croppedStack <- cbind(accessionsAdded[,1:3], scale(accessionsAdded[,4:10]))
+    climRaw <- accessionsAdded[,4:10]
+    cM <- colMeans2(climRaw)
+    cSd <- colSds(climRaw)
+    zscore <- function(x){
+      (climRaw[,x] - cM[x])/cSd[x]
+    }
     
-    croppedStack[,4] <- croppedStack[,4]*input$wtMAT
-    croppedStack[,5] <- croppedStack[,5]*input$wtDiurnal
-    croppedStack[,6] <- croppedStack[,6]*input$wtTSeason
-    croppedStack[,7] <- croppedStack[,7]*input$wtTWet
-    croppedStack[,8] <- croppedStack[,8]*input$wtMAP
-    croppedStack[,9] <- croppedStack[,9]*input$wtPSeason
-    croppedStack[,10] <- croppedStack[,10]*input$wtPWarm
+    accessionsAdded[,4:10] <- do.call(cbind, lapply(FUN = zscore, X = 1:7))
     
-    croppedStack
+    accessionsAdded[,"MAT"] <- accessionsAdded[,"MAT"]*input$wtMAT
+    accessionsAdded[,"DiurnalRange"] <- accessionsAdded[,"DiurnalRange"]*input$wtDiurnal
+    accessionsAdded[,"TSeasonality"] <- accessionsAdded[,"TSeasonality"]*input$wtTSeason
+    accessionsAdded[,"TWettestQtr"] <- accessionsAdded[,"TWettestQtr"]*input$wtTWet
+    accessionsAdded[,"MAP"] <- accessionsAdded[,"MAP"]*input$wtMAP
+    accessionsAdded[,"PSeasonality"] <- accessionsAdded[,"PSeasonality"]*input$wtPSeason
+    accessionsAdded[,"PWarmestQtr"] <- accessionsAdded[,"PWarmestQtr"]*input$wtPWarm
+    
+    accessionsAdded
   })
   
   scaledAccessions <- eventReactive(input$goButton,{
