@@ -155,13 +155,13 @@ server <- shinyServer(function(input, output, session) {
 
     if (!is.null(infile)) {
       infile.dat <- as.data.frame(read.csv(infile$datapath, header=TRUE))
-      colnames(infile.dat) <- c('id','x','y')
+      #colnames(infile.dat) <- c('id','x','y')
       infile.dat$id <- factor(infile.dat$id, levels = infile.dat$id)
       rasLoc <- path.expand('./climateMerc.tif')
       extract <- withProgress(message = "Extracting accession climate data",
                               value = 0.75,
                               matrix(gdallocationinfo(rasLoc,
-                                                      coords = as.matrix(infile.dat %>% dplyr::select(x,y)),
+                                                      coords = as.matrix(infile.dat[,2:3]),
                                                       wgs84 = T,
                                                       raw_output = T,
                                                       valonly = T),
@@ -642,8 +642,10 @@ server <- shinyServer(function(input, output, session) {
   })
   
   output$accessionTable <- renderDataTable({
-    raw <- accessionDF() %>% dplyr::rename(Latitude = y, Longitude = x)
-    raw
+    req(accessionDF())
+    df <- accessionDF() 
+    colnames(df)[2:3] <- c('Longitude','Latitude')
+    df
   })
   
   box.react <- eventReactive(input$goButton,{
@@ -689,7 +691,13 @@ server <- shinyServer(function(input, output, session) {
   output$boxPlot <- renderPlot({
     ggSelection()
   })
+  
+  observeEvent(input$goButton,{
+    req(climClip())
+    file.remove('clipped.tif')
+  })
 
+  ##### Downloads #####
   output$downloadData <- downloadHandler(
 
     filename = paste("climate_partitioning_data_",Sys.Date(),".zip", sep=""),
