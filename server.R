@@ -328,13 +328,13 @@ server <- shinyServer(function(input, output, session) {
     
     accessionsAdded[,4:10] <- do.call(cbind, lapply(FUN = zscore, X = 1:7))
     
-    accessionsAdded[,"MAT"] <- accessionsAdded[,"MAT"]*input$wtMAT
-    accessionsAdded[,"DiurnalRange"] <- accessionsAdded[,"DiurnalRange"]*input$wtDiurnal
-    accessionsAdded[,"TSeasonality"] <- accessionsAdded[,"TSeasonality"]*input$wtTSeason
-    accessionsAdded[,"TWettestQtr"] <- accessionsAdded[,"TWettestQtr"]*input$wtTWet
-    accessionsAdded[,"MAP"] <- accessionsAdded[,"MAP"]*input$wtMAP
-    accessionsAdded[,"PSeasonality"] <- accessionsAdded[,"PSeasonality"]*input$wtPSeason
-    accessionsAdded[,"PWarmestQtr"] <- accessionsAdded[,"PWarmestQtr"]*input$wtPWarm
+    accessionsAdded[,"MAT"] <- accessionsAdded[,"MAT"]*(input$wtMAT+1e-6)
+    accessionsAdded[,"DiurnalRange"] <- accessionsAdded[,"DiurnalRange"]*(input$wtDiurnal+1e-6)
+    accessionsAdded[,"TSeasonality"] <- accessionsAdded[,"TSeasonality"]*(input$wtTSeason+1e-6)
+    accessionsAdded[,"TWettestQtr"] <- accessionsAdded[,"TWettestQtr"]*(input$wtTWet+1e-6)
+    accessionsAdded[,"MAP"] <- accessionsAdded[,"MAP"]*(input$wtMAP+1e-6)
+    accessionsAdded[,"PSeasonality"] <- accessionsAdded[,"PSeasonality"]*(input$wtPSeason+1e-6)
+    accessionsAdded[,"PWarmestQtr"] <- accessionsAdded[,"PWarmestQtr"]*(input$wtPWarm+1e-6)
     
     accessionsAdded
   })
