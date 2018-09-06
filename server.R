@@ -1,13 +1,15 @@
 server <- shinyServer(function(input, output, session) {
   shinyalert(title = 'Welcome to Seed Selector!',
-             text = HTML('App is initialized!<br><br>
+             text = HTML('
+                         <b>Refer to this learning module to get started:</b><br><br>
+                         <iframe width="350px" height="225px" src="https://www.youtube.com/embed/1QYI-X6imp0" frameborder="10" allow="autoplay; encrypted-media" allowfullscreen></iframe><br><br>
                          For a detailed explanation of the underlying analyses, see
                          <a href="https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/eap.1505">Doherty et al. (2017)</a><br><br>
                          If you want to process a very large extent, it is best to run the app offline.<br>
                          <a href="https://rawgit.com/mosscoder/seedselector/master/offlineInstructions.html">
                          Click here for more information!</a>'
              ),
-             type = 'success',
+             type = '',
              closeOnClickOutside = TRUE,
              html = T)
   
