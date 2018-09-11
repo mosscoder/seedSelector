@@ -162,7 +162,7 @@ server <- shinyServer(function(input, output, session) {
       extract <- withProgress(message = "Extracting accession climate data",
                               value = 0.75,
                               matrix(gdallocationinfo(rasLoc,
-                                                      coords = as.matrix(infile.dat[,2:3]),
+                                                      coords = as.matrix(infile.dat %>% dplyr::select(x, y)),
                                                       wgs84 = T,
                                                       raw_output = T,
                                                       valonly = T),
