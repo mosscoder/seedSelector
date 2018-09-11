@@ -70,8 +70,6 @@ server <- shinyServer(function(input, output, session) {
                                 each value a contrasting color. A file is supplied to relate accession id to its 
                                 corresponding value in the the accession.assignment.tif.')
   
-  output$inc<-renderUI({includeHTML("https://rawgit.com/mosscoder/climpart/master/offlineInstructions.html")})
-  
   output$leaf <- renderLeaflet({
     leaflet() %>%
       setView(lat = 50, lng = -100, zoom = 3) %>%
@@ -156,12 +154,16 @@ server <- shinyServer(function(input, output, session) {
     infile <- input$accession
 
     if (!is.null(infile)) {
-      infile.dat <- as.data.frame(read.csv(infile$datapath, header=TRUE))
+      infile.dat <- as.data.frame(read.csv(infile$datapath, header=TRUE, stringsAsFactors = F))
+      #cnames <- unlist(tolower(colnames(infile.dat)))
+      colnames(infile.dat) <- tolower(colnames(infile.dat))
       infile.dat$id <- factor(infile.dat$id, levels = infile.dat$id)
+      infile.dat <- infile.dat %>% dplyr::select(id, x, y)
       
       if(any(sign(infile.dat$x)  == 1) | any(sign(infile.dat$y) == -1)){
-        shinyalert(title = 'Invalid accession coordinates!',
-                   text = HTML('<b>Please check that the signs of x coords (longitude) are negative and the signs of y coords (latitude) are positive.</b><br><br>
+        shinyalert(title = 'Potential Errors in Accession Coordinates!',
+                   text = HTML('<b>Please ensure that longitude coordinates are in column "x" and latitude coordinates are in column "y", 
+                                and that all x values are negative and all y values are positive.</b><br><br>
                                <img src="https://storage.googleapis.com/seedmapper_dat/df.example.png", height = "48", width = "200"</img>'
                    ),
                    type = 'warning',
@@ -357,7 +359,7 @@ server <- shinyServer(function(input, output, session) {
   scaledAccessions <- eventReactive(input$goButton,{
     accSelect <- scaling()[1:nrow(accessionDF()),] %>% as.data.frame()
     colnames(accSelect) <- colnames(accessionDF())
-    accSelect$id <- as.data.frame(read.csv(input$accession$datapath, header=TRUE)) %>% dplyr::select(id)
+    accSelect$id <- accessionDF()$id
     accSelect
   })
   
@@ -408,13 +410,15 @@ server <- shinyServer(function(input, output, session) {
   
   sim.calcs <- eventReactive(input$goButton,{
     
+  
+    
     progress <- shiny::Progress$new()
     on.exit(progress$close())
     progress$set(message = "Mapping climate similarity", value = 0.6)
     
     cropped.stack <- map.crop()
     extent.max <- max.find()
-    accessions <- scaledAccessions()
+    accessions <- scaledAccessions() 
     maps.clust.fun <- function(clim.vals){
       col.dat <- clim.vals 
       
