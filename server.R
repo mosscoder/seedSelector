@@ -158,6 +158,17 @@ server <- shinyServer(function(input, output, session) {
     if (!is.null(infile)) {
       infile.dat <- as.data.frame(read.csv(infile$datapath, header=TRUE))
       infile.dat$id <- factor(infile.dat$id, levels = infile.dat$id)
+      
+      if(any(sign(infile.dat$x)  == 1) | any(sign(infile.dat$y) == -1)){
+        shinyalert(title = 'Invalid accession coordinates!',
+                   text = HTML('<b>Please check that the signs of x coords (longitude) are negative and the signs of y coords (latitude) are positive.</b><br><br>
+                               <img src="https://storage.googleapis.com/seedmapper_dat/df.example.png", height = "48", width = "200"</img>'
+                   ),
+                   type = 'warning',
+                   closeOnClickOutside = TRUE,
+                   html = T)
+      } else {
+      
       rasLoc <- path.expand('./climateMerc.tif')
       extract <- withProgress(message = "Extracting accession climate data",
                               value = 0.75,
@@ -177,6 +188,7 @@ server <- shinyServer(function(input, output, session) {
       climAttached$DiurnalRange <- climAttached$DiurnalRange/10
       climAttached$TWettestQtr <- climAttached$TWettestQtr/10
       climAttached
+      }
     }else{
       NULL
     }
@@ -214,6 +226,7 @@ server <- shinyServer(function(input, output, session) {
                  closeOnClickOutside = TRUE,
                  html = T)
     }
+    
   })
 
   climClip <- eventReactive(input$goButton,{
