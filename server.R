@@ -155,7 +155,6 @@ server <- shinyServer(function(input, output, session) {
 
     if (!is.null(infile)) {
       infile.dat <- as.data.frame(read.csv(infile$datapath, header=TRUE, stringsAsFactors = F))
-      #cnames <- unlist(tolower(colnames(infile.dat)))
       colnames(infile.dat) <- tolower(colnames(infile.dat))
       infile.dat$id <- factor(infile.dat$id, levels = infile.dat$id)
       infile.dat <- infile.dat %>% dplyr::select(id, x, y)

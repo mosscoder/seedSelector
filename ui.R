@@ -5,6 +5,7 @@ ui <- fluidPage(
     sidebarPanel(width=2,
                  
                  fluidRow(
+                   img(src="https://github.com/mosscoder/seedselector/blob/ssDev/cpnpp_logo.png?raw=true", height=81, width='100%'),
                    img(src="https://github.com/mosscoder/seedselector/blob/master/usgs.log.png?raw=true", height=81, width='100%'),
                    
                    tags$div(id = 'selectDiv', selectInput("boundSelect", 
